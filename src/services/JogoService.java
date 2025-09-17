@@ -1,26 +1,31 @@
 package services;
 
+import entities.Avaliacao;
 import entities.Conteudo;
 import entities.Jogo;
+import utils.IOUtils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import static utils.IOUtils.scanInt;
 import static utils.StringUtils.print;
 
 public class JogoService {
 
     public final String MENU_JOGOS = """
-                        ---- Escolha uma opção: ----
-                        1 - Adicionar jogo
-                        2 - Remover jogo
-                        3 - Listar jogos
-                        0 - Voltar
-                        ----------------------------
-                        """;
+            ---- Escolha uma opção: ----
+            1 - Adicionar jogo
+            2 - Remover jogo
+            3 - Listar jogos
+            4 - Avaliar jogo
+            0 - Voltar
+            ----------------------------
+            """;
 
-    public void AdicionarJogo(Scanner scan, List<Conteudo> colecao){
+    public void AdicionarJogo(Scanner scan, List<Conteudo> colecao) {
         print("Digite o nome do jogo:");
         var nome = scan.nextLine();
         print("Digite a plataforma do jogo:");
@@ -36,7 +41,7 @@ public class JogoService {
         colecao.add(jogo);
     }
 
-    public void RemoverJogo(Scanner scan, List<Conteudo> colecao){
+    public void RemoverJogo(Scanner scan, List<Conteudo> colecao) {
         print("Digite o numero do jogo a ser removido:");
         var index = scan.nextInt();
         if (index >= 0 && index < colecao.size())
@@ -45,10 +50,44 @@ public class JogoService {
             print("Índice inválido!");
     }
 
-    public void ListarJogos(List<Conteudo> colecao){
+    public void AvaliarJogo(Scanner scan, List<Conteudo> colecao) {
+        print("Digite o numero do jogo a ser avaliado:");
+        var index = scanInt(scan);
+        var jogo = (Jogo) colecao.get(index);
+
+        print("Digite o seu nome de usuario: ");
+        var usuario = scan.nextLine();
+
+        print("Digite a nota (0 a 10):");
+        var nota = scanInt(scan);
+
+        print("Digite um comentario(Opcional): ");
+        var comentario = scan.nextLine();
+
+        var avaliacao = new Avaliacao();
+        avaliacao.nomeUsuario = usuario;
+        avaliacao.nota = nota;
+        avaliacao.comentario = comentario;
+
+        jogo.avaliacoes.add(avaliacao);
+        jogo.recalcularMediaAvaliacoes();
+    }
+
+
+    public void ListarJogos(List<Conteudo> colecao) {
         print("Jogos cadastrados: ");
         var index = 0;
         for (var jogo : colecao)
             print((index++) + " - " + jogo);
+
+    }
+
+    public void ListarAvaliacoes(Scanner scan, List<Conteudo> colecao) {
+        print("Digite o número do jogo para ver as avaliações dele:");
+        var index = IOUtils.scanInt(scan);
+        var jogo = (Jogo) colecao.get(index);
+
+        for (var avaliacao : jogo.avaliacoes)
+            print(avaliacao.toString());
     }
 }
